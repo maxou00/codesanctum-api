@@ -1,4 +1,4 @@
-FROM node:lts-alpine as base
+FROM node:18-alpine3.16 as base
 # set for base and all layer that inherit from it
 
 RUN mkdir /app
