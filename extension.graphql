@@ -1,0 +1,45 @@
+type Media {
+    type: String
+    file: String
+    path: String
+    url: String
+}
+
+input MediaInput {
+    type: String
+    file: String
+    path: String
+    url: String
+}
+
+type SigninResult {
+    accessToken: String
+    user: User
+}
+
+type PaginatedPosts {
+    count: Int
+    pages: Int
+    currentPage: Int
+    items: [Post!]
+}
+
+extend type Query {
+    me: User
+    postBySlug(slug: String): Post
+    paginatedPosts(pageSize: Int, currentPage: Int): PaginatedPosts
+}
+
+input CreateOrUpdatePost {
+    id: String
+    metadata: JSON
+    content: JSON
+    cover: JSON
+    published: Boolean
+    tags: [String!]
+}
+
+extend type Mutation {
+    signin(auth0Token: String): SigninResult
+    writePost(data: CreateOrUpdatePost): Post
+}
