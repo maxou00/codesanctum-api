@@ -1,0 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Login to Docker
+      uses: docker/login-action@v1.8.0
+      with: 
+        username: ${{secrets.DOCKER_USER}}
+        password: ${{secrets.DOCKER_PASSWORD}}
+    - name: Build and Push Test Images 
+      uses: docker/build-push-action@v2.3.0
+      with: 
+        context: .
+        push: true
+        tags: themx05/cscore:prod
+    
+    - name: Deploy to CodeSanctum (Test)
+      uses: appleboy/ssh-action@main
+      with:
+        host: ${{secrets.SERVER_HOST}}
+        username: ${{secrets.SERVER_USER}}
+        password: ${{secrets.SERVER_PASS}}
+        script: docker pull themx05/cscore:prod && cd /var/apps/codesanctum/codesanctum.prod && docker compose up -d
+    
