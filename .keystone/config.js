@@ -29,7 +29,7 @@ __export(keystone_exports, {
   default: () => keystone_default
 });
 module.exports = __toCommonJS(keystone_exports);
-var import_core6 = require("@keystone-6/core");
+var import_core8 = require("@keystone-6/core");
 var import_graphql = require("graphql");
 
 // src/list/User.ts
@@ -371,8 +371,96 @@ var Reaction = (0, import_core5.list)({
 });
 var Reaction_default = Reaction;
 
+// src/list/Message.ts
+var import_core6 = require("@keystone-6/core");
+var import_fields6 = require("@keystone-6/core/fields");
+var Message = (0, import_core6.list)({
+  access: (ctx) => {
+    if (ctx.operation === "create" && !ctx.session) {
+      return true;
+    }
+    return Boolean(ctx.session) && ctx.session?.role === "publisher";
+  },
+  ui: {
+    label: "Contact"
+  },
+  fields: {
+    name: (0, import_fields6.text)({
+      label: "Nom",
+      validation: {
+        isRequired: true
+      }
+    }),
+    email: (0, import_fields6.text)({
+      label: "Email",
+      validation: {
+        isRequired: true
+      }
+    }),
+    message: (0, import_fields6.text)({
+      label: "Message",
+      validation: {
+        isRequired: true
+      }
+    }),
+    createdAt: (0, import_fields6.timestamp)({
+      defaultValue: {
+        kind: "now"
+      }
+    })
+  },
+  db: {
+    idField: {
+      kind: "uuid"
+    }
+  }
+});
+var Message_default = Message;
+
+// src/list/NewsLetterSubscription.ts
+var import_core7 = require("@keystone-6/core");
+var import_fields7 = require("@keystone-6/core/fields");
+var NewsletterSubscription = (0, import_core7.list)({
+  access: (ctx) => {
+    if (ctx.operation === "create" && !ctx.session) {
+      return true;
+    }
+    return Boolean(ctx.session) && ctx.session?.role === "publisher";
+  },
+  ui: {
+    label: "Souscription \xE0 la newsletter"
+  },
+  fields: {
+    name: (0, import_fields7.text)({
+      label: "Nom",
+      validation: {
+        isRequired: true
+      }
+    }),
+    email: (0, import_fields7.text)({
+      label: "Email",
+      validation: {
+        isRequired: true
+      }
+    }),
+    createdAt: (0, import_fields7.timestamp)({
+      defaultValue: {
+        kind: "now"
+      }
+    })
+  },
+  db: {
+    idField: {
+      kind: "uuid"
+    }
+  }
+});
+var NewsLetterSubscription_default = NewsletterSubscription;
+
 // schema.ts
 var lists = {
+  Message: Message_default,
+  NewsletterSubscription: NewsLetterSubscription_default,
   User: User_default,
   Post: Post_default,
   Tag: Tag_default,
@@ -725,7 +813,7 @@ var paginatedPosts_default = paginatedPosts;
 var schemaExtension = (0, import_graphql.parse)(
   (0, import_fs.readFileSync)("./extension.graphql", { encoding: "utf-8" })
 );
-var keystone_default = (0, import_core6.config)({
+var keystone_default = (0, import_core8.config)({
   db: {
     provider: "postgresql",
     url: process.env.DATABASE_URL || ""

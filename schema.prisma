@@ -12,6 +12,21 @@ generator client {
   output   = "node_modules/.prisma/client"
 }
 
+model Message {
+  id        String    @id @default(uuid()) @postgresql.Uuid
+  name      String    @default("")
+  email     String    @default("")
+  message   String    @default("")
+  createdAt DateTime? @default(now())
+}
+
+model NewsletterSubscription {
+  id        String    @id @default(uuid()) @postgresql.Uuid
+  name      String    @default("")
+  email     String    @default("")
+  createdAt DateTime? @default(now())
+}
+
 model User {
   id          String     @id @default(uuid()) @postgresql.Uuid
   firstname   String     @default("")
