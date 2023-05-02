@@ -1,7 +1,6 @@
 import { list, graphql } from "@keystone-6/core";
 import { allowAll } from "@keystone-6/core/access";
-import { ScalarType } from "@keystone-6/core/dist/declarations/src/types/schema/graphql-ts-schema";
-import { text, password, timestamp, select, relationship, virtual, json } from "@keystone-6/core/fields";
+import { text, timestamp, select, relationship, virtual, json } from "@keystone-6/core/fields";
 
 const User = list({
     access: allowAll,
@@ -14,23 +13,22 @@ const User = list({
                 isRequired: true
             }
         }),
-
         lastname: text({
             validation: {
                 isRequired: true
             }
         }),
-
         picture: json({
             label: "Image",
             defaultValue: {}
         }),
-
-        auth0Avatar: text({
-            label: "Auth0 Avatar",
-            defaultValue: "",
+        providers: json({
+            label: "Authentication Strategies",
+            defaultValue: {},
+            access: (args) => {
+                return false;
+            }
         }),
-
         avatar: virtual({
             label: "Avatar",
             field: graphql.field({
@@ -50,18 +48,10 @@ const User = list({
                 }
             })
         }),
-
         email: text({
             validation: {
                 isRequired: true
             },
-        }),
-
-        authId: text({
-            validation: {
-                isRequired: true
-            },
-            isIndexed: 'unique',
         }),
 
         gender: select({
@@ -71,7 +61,6 @@ const User = list({
                 { label: "Femme", value: "female" }
             ]
         }),
-
         role: select({
             label: "Role",
             ui: {

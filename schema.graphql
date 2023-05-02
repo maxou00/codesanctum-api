@@ -164,10 +164,9 @@ type User {
   firstname: String
   lastname: String
   picture: JSON
-  auth0Avatar: String
+  providers: JSON
   avatar: String
   email: String
-  authId: String
   gender: String
   role: String
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0): [Post!]
@@ -182,7 +181,6 @@ type User {
 
 input UserWhereUniqueInput {
   id: ID
-  authId: String
 }
 
 input UserWhereInput {
@@ -192,9 +190,7 @@ input UserWhereInput {
   id: IDFilter
   firstname: StringFilter
   lastname: StringFilter
-  auth0Avatar: StringFilter
   email: StringFilter
-  authId: StringFilter
   gender: StringNullableFilter
   role: StringFilter
   posts: PostManyRelationFilter
@@ -255,9 +251,7 @@ input UserOrderByInput {
   id: OrderDirection
   firstname: OrderDirection
   lastname: OrderDirection
-  auth0Avatar: OrderDirection
   email: OrderDirection
-  authId: OrderDirection
   gender: OrderDirection
   role: OrderDirection
   createdAt: OrderDirection
@@ -268,9 +262,8 @@ input UserUpdateInput {
   firstname: String
   lastname: String
   picture: JSON
-  auth0Avatar: String
+  providers: JSON
   email: String
-  authId: String
   gender: String
   role: String
   posts: PostRelateToManyForUpdateInput
@@ -310,9 +303,8 @@ input UserCreateInput {
   firstname: String
   lastname: String
   picture: JSON
-  auth0Avatar: String
+  providers: JSON
   email: String
-  authId: String
   gender: String
   role: String
   posts: PostRelateToManyForCreateInput
@@ -676,7 +668,7 @@ type Mutation {
   deleteReaction(where: ReactionWhereUniqueInput!): Reaction
   deleteReactions(where: [ReactionWhereUniqueInput!]!): [Reaction]
   endSession: Boolean!
-  signin(auth0Token: String): SigninResult
+  signinWithGoogle(accessToken: String): SigninResult
   writePost(data: CreateOrUpdatePost): Post
 }
 

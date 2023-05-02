@@ -56,9 +56,12 @@ var User = (0, import_core.list)({
       label: "Image",
       defaultValue: {}
     }),
-    auth0Avatar: (0, import_fields.text)({
-      label: "Auth0 Avatar",
-      defaultValue: ""
+    providers: (0, import_fields.json)({
+      label: "Authentication Strategies",
+      defaultValue: {},
+      access: (args) => {
+        return false;
+      }
     }),
     avatar: (0, import_fields.virtual)({
       label: "Avatar",
@@ -83,12 +86,6 @@ var User = (0, import_core.list)({
       validation: {
         isRequired: true
       }
-    }),
-    authId: (0, import_fields.text)({
-      validation: {
-        isRequired: true
-      },
-      isIndexed: "unique"
     }),
     gender: (0, import_fields.select)({
       label: "Genre",
@@ -656,8 +653,15 @@ var authClient = () => {
 };
 
 // src/resolvers/auth/signin.ts
-var signin = async (root, args, context, info) => {
-  let profile = await authClient().getProfile(args.auth0Token).catch((err) => {
+var import_google_auth_library = require("google-auth-library");
+var signinWithGoogle = async (root, args, context, info) => {
+  let googleApi = new import_google_auth_library.OAuth2Client({ clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" });
+  let verification = await googleApi.verifyIdToken({
+    idToken: args.accessToken
+  });
+  let payload = verification.getPayload();
+  let gid = payload?.sub;
+  let profile = await authClient().getProfile(args.accessToken).catch((err) => {
     console.log(err);
     return void 0;
   });
@@ -837,7 +841,7 @@ var keystone_default = (0, import_core8.config)({
         paginatedPosts: paginatedPosts_default
       },
       Mutation: {
-        signin,
+        signinWithGoogle,
         writePost: writePost_default
       }
     }

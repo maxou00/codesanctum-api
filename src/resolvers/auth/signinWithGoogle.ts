@@ -2,23 +2,38 @@ import { GraphQLResolver, KeystoneContext } from "@keystone-6/core/types";
 import { authClient } from "../../core/auth0";
 import { User as Auth0User } from "auth0";
 import { PrismaClient } from "@prisma/client";
+import { OAuth2Client } from "google-auth-library";
 
 interface Args {
-    auth0Token: string;
+    accessToken: string;
 }
 
-export const signin: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
-    let profile: Auth0User & { sub: string } = await authClient().getProfile(args.auth0Token).catch((err) => {
-        console.log(err);
-        return undefined;
+export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
+    let googleApi = new OAuth2Client({ clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" });
+    let verification = await googleApi.verifyIdToken({
+        idToken: args.accessToken
     });
+    let profile = verification.getPayload();
     if (!profile) {
         return null;
     }
     let client = context.prisma as PrismaClient;
     let user = await client.user.findFirst({
         where: {
-            authId: profile.sub
+            AND: [
+                {
+                    providers: {
+                        path: ['type'],
+                        equals: "google"
+                    }
+                },
+                {
+                    providers: {
+                        path: ['sub'],
+                        equals: profile.sub || ""
+                    }
+                }
+            ]
         }
     });
 
@@ -39,8 +54,9 @@ export const signin: GraphQLResolver<KeystoneContext> = async (root, args: Args,
             firstname: profile.given_name || firstName,
             lastname: profile.family_name || lastName,
             email: profile.email || "",
-            auth0Avatar: profile.picture || "",
-            authId: profile.sub
+            picture: {
+                url: profile.picture || "",
+            },
         }
     });
 

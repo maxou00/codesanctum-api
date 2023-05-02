@@ -8,7 +8,7 @@ import { readFileSync } from 'fs';
 import { mergeSchemas } from '@graphql-tools/schema';
 import { getAuthenticatedUser } from './src/resolvers/auth/authenticatedItem';
 import postBySlug from './src/resolvers/posts/postBySlug';
-import { signin } from './src/resolvers/auth/signin';
+import { signinWithGoogle } from './src/resolvers/auth/signinWithGoogle';
 import writePost from './src/resolvers/posts/writePost';
 import paginatedPosts from './src/resolvers/posts/paginatedPosts';
 
@@ -42,7 +42,7 @@ export default config({
         paginatedPosts
       },
       Mutation: {
-        signin: signin,
+        signinWithGoogle,
         writePost: writePost
       }
     }

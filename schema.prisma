@@ -28,20 +28,19 @@ model NewsletterSubscription {
 }
 
 model User {
-  id          String     @id @default(uuid()) @postgresql.Uuid
-  firstname   String     @default("")
-  lastname    String     @default("")
-  picture     Json?      @default("{}")
-  auth0Avatar String     @default("")
-  email       String     @default("")
-  authId      String     @unique @default("")
-  gender      String?
-  role        String     @default("reader")
-  posts       Post[]     @relation("Post_author")
-  comments    Comment[]  @relation("Comment_author")
-  reactions   Reaction[] @relation("Reaction_author")
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?
+  id        String     @id @default(uuid()) @postgresql.Uuid
+  firstname String     @default("")
+  lastname  String     @default("")
+  picture   Json?      @default("{}")
+  providers Json?      @default("{}")
+  email     String     @default("")
+  gender    String?
+  role      String     @default("reader")
+  posts     Post[]     @relation("Post_author")
+  comments  Comment[]  @relation("Comment_author")
+  reactions Reaction[] @relation("Reaction_author")
+  createdAt DateTime?  @default(now())
+  updatedAt DateTime?
 }
 
 model Post {
