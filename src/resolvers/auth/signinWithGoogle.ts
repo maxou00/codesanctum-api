@@ -7,7 +7,9 @@ interface Args {
 }
 
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
+    console.log("Args: ", args);
     let profile = await getUserWithAccessToken(args.accessToken);
+    console.log("Google Profile: ", profile);
     if (!profile) {
         return null;
     }
