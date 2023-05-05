@@ -21,10 +21,9 @@ export function getS3Client(): [first: any, second: S3] {
     return [conf, client];
 }
 
-
 export function getRedisClient() {
     if (!global.redis) {
-        let client = new IoRedis({ host: "cache", port: 6379 });
+        let client = new IoRedis({ host: process.env.REDIS_HOST, port: 6379 });
         global.redis = client;
     }
     return global.redis

@@ -13,8 +13,6 @@ import writePost from './src/resolvers/posts/writePost';
 import paginatedPosts from './src/resolvers/posts/paginatedPosts';
 import { getRedisClient } from './src/core/utils';
 
-getRedisClient();
-
 dotenvConfig();
 
 const schemaExtension = parse(
