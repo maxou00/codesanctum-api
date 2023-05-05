@@ -20,8 +20,11 @@ async function exchangeCodeForTokens(code: string) {
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
     let googleClient = getGoogleClient();
     let tokens = await exchangeCodeForTokens(args.authCode);
+    if(!tokens.idToken) {
+        return null;
+    }
     let verification = await googleClient.verifyIdToken({
-        idToken: args.authCode
+        idToken: tokens.idToken
     });
     let profile = verification.getPayload();
     if (!profile) {
