@@ -1,4 +1,5 @@
 import { S3 } from "aws-sdk";
+import IoRedis from "ioredis";
 
 export function getS3Client(): [first: any, second: S3] {
     let client = new S3({
@@ -18,4 +19,13 @@ export function getS3Client(): [first: any, second: S3] {
         accessSecret: process.env.BUCKET_ACCESS_SECRET
     }
     return [conf, client];
+}
+
+
+export function getRedisClient() {
+    if (!global.redis) {
+        let client = new IoRedis({ host: "redis", port: 6379 });
+        global.redis = client;
+    }
+    return global.redis
 }

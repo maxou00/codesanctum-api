@@ -11,6 +11,9 @@ import postBySlug from './src/resolvers/posts/postBySlug';
 import { signinWithGoogle } from './src/resolvers/auth/signinWithGoogle';
 import writePost from './src/resolvers/posts/writePost';
 import paginatedPosts from './src/resolvers/posts/paginatedPosts';
+import { getRedisClient } from './src/core/utils';
+
+getRedisClient();
 
 dotenvConfig();
 
