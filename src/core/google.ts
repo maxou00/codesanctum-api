@@ -7,5 +7,5 @@ export const google = {
 };
 
 export function getGoogleClient() {
-    return new OAuth2Client({ clientId: google.clientId, clientSecret: google.clientSecret, redirectUri: google.redirectUri });
+    return new OAuth2Client(google.clientId, google.clientSecret, google.redirectUri);
 }
