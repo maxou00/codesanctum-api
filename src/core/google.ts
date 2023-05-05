@@ -1,5 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
-import axios from "axios";
+import fetch from "node-fetch"
 
 export interface GoogleUser {
     sub: string;
@@ -23,16 +23,22 @@ export function getGoogleClient() {
 }
 
 export async function getUserWithAccessToken(accessToken: string) {
-    return await (axios.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { 'Authorization': `Bearer ${accessToken}` } })
-        .then((res) => {
-            console.log(res.data);
-            if (res.status < 200 || res.status >= 300) {
-                return undefined;
+    return fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
             }
-            return res.data as GoogleUser;
+        }
+    )
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data);
+            return data as GoogleUser;
         })
         .catch((err) => {
             console.log(err);
             return undefined;
-        }));
+        });
 }

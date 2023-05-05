@@ -646,19 +646,23 @@ var google = {
   redirectUri: "https://api-test.codesanctum.org/auth/google/callback"
 };
 async function getUserWithAccessToken(accessToken) {
-  return import_axios.default.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { "Authorization": `Bearer ${accessToken}` } }).then((res) => {
-    if (res.status !== 200) {
+  return await import_axios.default.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { "Authorization": `Bearer ${accessToken}` } }).then((res) => {
+    console.log(res.data);
+    if (res.status < 200 || res.status >= 300) {
       return void 0;
     }
     return res.data;
   }).catch((err) => {
+    console.log(err);
     return void 0;
   });
 }
 
 // src/resolvers/auth/signinWithGoogle.ts
 var signinWithGoogle = async (root, args, context, info) => {
-  let profile = await getUserWithAccessToken(args.authCode);
+  console.log("Args: ", args);
+  let profile = await getUserWithAccessToken(args.accessToken);
+  console.log("Google Profile: ", profile);
   if (!profile) {
     return null;
   }
