@@ -3,11 +3,11 @@ import { PrismaClient } from "@prisma/client";
 import { getUserWithAccessToken } from "../../core/google";
 
 interface Args {
-    authCode: string;
+    accessToken: string;
 }
 
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
-    let profile = await getUserWithAccessToken(args.authCode);
+    let profile = await getUserWithAccessToken(args.accessToken);
     if (!profile) {
         return null;
     }
