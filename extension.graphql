@@ -40,6 +40,6 @@ input CreateOrUpdatePost {
 }
 
 extend type Mutation {
-    signinWithGoogle(accessToken: String): SigninResult
+    signinWithGoogle(authCode: String): SigninResult
     writePost(data: CreateOrUpdatePost): Post
 }

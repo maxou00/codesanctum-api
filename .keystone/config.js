@@ -637,12 +637,28 @@ var postBySlug = async (root, args, context, info) => {
 };
 var postBySlug_default = postBySlug;
 
-// src/resolvers/auth/signinWithGoogle.ts
+// src/core/google.ts
 var import_google_auth_library = require("google-auth-library");
+var google = {
+  clientId: process.env.GOOGLE_CLIENT_ID || "",
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET || ""
+};
+function getGoogleClient() {
+  return new import_google_auth_library.OAuth2Client({ clientId: google.clientId, clientSecret: google.clientSecret });
+}
+
+// src/resolvers/auth/signinWithGoogle.ts
+async function exchangeCodeForTokens(code) {
+  const { tokens } = await getGoogleClient().getToken(code);
+  const accessToken = tokens.access_token;
+  const idToken = tokens.id_token;
+  return { accessToken, idToken };
+}
 var signinWithGoogle = async (root, args, context, info) => {
-  let googleApi = new import_google_auth_library.OAuth2Client({ clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" });
-  let verification = await googleApi.verifyIdToken({
-    idToken: args.accessToken
+  let googleClient = getGoogleClient();
+  let tokens = await exchangeCodeForTokens(args.authCode);
+  let verification = await googleClient.verifyIdToken({
+    idToken: args.authCode
   });
   let profile = verification.getPayload();
   if (!profile) {

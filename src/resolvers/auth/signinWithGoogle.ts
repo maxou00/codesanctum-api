@@ -2,31 +2,31 @@ import { GraphQLResolver, KeystoneContext } from "@keystone-6/core/types";
 import { authClient } from "../../core/auth0";
 import { User as Auth0User } from "auth0";
 import { PrismaClient } from "@prisma/client";
-import peoples from "@googleapis/people";
-import { google } from "../../core/google";
+import { OAuth2Client } from "google-auth-library";
+import { getGoogleClient } from "../../core/google";
 
 interface Args {
-    accessToken: string;
+    authCode: string;
+}
+
+
+async function exchangeCodeForTokens(code: string) {
+    const { tokens } = await getGoogleClient().getToken(code);
+    const accessToken = tokens.access_token;
+    const idToken = tokens.id_token;
+    return { accessToken, idToken };
 }
 
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
-    let googleApi = new peoples.auth.OAuth2({ clientId: google.clientId, clientSecret: google.clientSecret });
-
-    let token = await googleApi.getToken(
-        args.accessToken
-    )
-        .catch((err) => { console.log(err); return null });
-
-    console.log("Retrieved token: ", token);
-
-    /*if (!profile) {
+    let googleClient = getGoogleClient();
+    let tokens = await exchangeCodeForTokens(args.authCode);
+    let verification = await googleClient.verifyIdToken({
+        idToken: args.authCode
+    });
+    let profile = verification.getPayload();
+    if (!profile) {
         return null;
     }
-
-    console.log("Profile ", profile);
-
-    return null;
-
     let client = context.prisma as PrismaClient;
     let user = await client.user.findFirst({
         where: {
@@ -56,7 +56,7 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
         }
     }
 
-    let name = profile.email;
+    let name = profile.name;
     let [firstName, lastName] = (name || "").split(" ");
 
     user = await client.user.create({
@@ -75,5 +75,4 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
         accessToken: token,
         user
     }
-    */
 }
