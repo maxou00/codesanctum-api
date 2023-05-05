@@ -639,32 +639,26 @@ var postBySlug_default = postBySlug;
 
 // src/core/google.ts
 var import_google_auth_library = require("google-auth-library");
+var import_axios = __toESM(require("axios"));
 var google = {
   clientId: process.env.GOOGLE_CLIENT_ID || "",
   clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
   redirectUri: "https://api-test.codesanctum.org/auth/google/callback"
 };
-function getGoogleClient() {
-  return new import_google_auth_library.OAuth2Client(google.clientId, google.clientSecret, google.redirectUri);
+async function getUserWithAccessToken(accessToken) {
+  return import_axios.default.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { "Authorization": `Bearer ${accessToken}` } }).then((res) => {
+    if (res.status !== 200) {
+      return void 0;
+    }
+    return res.data;
+  }).catch((err) => {
+    return void 0;
+  });
 }
 
 // src/resolvers/auth/signinWithGoogle.ts
-async function exchangeCodeForTokens(code) {
-  const { tokens } = await getGoogleClient().getToken(code);
-  const accessToken = tokens.access_token;
-  const idToken = tokens.id_token;
-  return { accessToken, idToken };
-}
 var signinWithGoogle = async (root, args, context, info) => {
-  let googleClient = getGoogleClient();
-  let tokens = await exchangeCodeForTokens(args.authCode);
-  if (!tokens.idToken) {
-    return null;
-  }
-  let verification = await googleClient.verifyIdToken({
-    idToken: tokens.idToken
-  });
-  let profile = verification.getPayload();
+  let profile = await getUserWithAccessToken(args.authCode);
   if (!profile) {
     return null;
   }
