@@ -11,23 +11,15 @@ interface Args {
 
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
     let googleApi = new peoples.auth.OAuth2({ clientId: google.clientId, clientSecret: google.clientSecret });
-    let people = await peoples.people("v1").people.get({
-        resourceName: "people/me",
-        access_token: args.accessToken
-    })
-    .catch((err) => {
-        console.log(err);
-        return null;
-    })
 
-    console.log("People ", people);
-
-    let profile = await googleApi.getTokenInfo(
+    let token = await googleApi.getToken(
         args.accessToken
     )
         .catch((err) => { console.log(err); return null });
 
-    if (!profile) {
+    console.log("Retrieved token: ", token);
+
+    /*if (!profile) {
         return null;
     }
 
@@ -35,7 +27,7 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
 
     return null;
 
-    /*let client = context.prisma as PrismaClient;
+    let client = context.prisma as PrismaClient;
     let user = await client.user.findFirst({
         where: {
             AND: [
