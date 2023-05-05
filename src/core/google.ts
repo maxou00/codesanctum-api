@@ -23,14 +23,16 @@ export function getGoogleClient() {
 }
 
 export async function getUserWithAccessToken(accessToken: string) {
-    return axios.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { 'Authorization': `Bearer ${accessToken}` } })
+    return await (axios.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { 'Authorization': `Bearer ${accessToken}` } })
         .then((res) => {
-            if (res.status < 200 || res.status >=300) {
+            console.log(res.data);
+            if (res.status < 200 || res.status >= 300) {
                 return undefined;
             }
             return res.data as GoogleUser;
         })
         .catch((err) => {
+            console.log(err);
             return undefined;
-        });
+        }));
 }
