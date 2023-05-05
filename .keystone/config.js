@@ -639,19 +639,24 @@ var postBySlug_default = postBySlug;
 
 // src/core/google.ts
 var import_google_auth_library = require("google-auth-library");
-var import_axios = __toESM(require("axios"));
+var import_node_fetch = __toESM(require("node-fetch"));
 var google = {
   clientId: process.env.GOOGLE_CLIENT_ID || "",
   clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
   redirectUri: "https://api-test.codesanctum.org/auth/google/callback"
 };
 async function getUserWithAccessToken(accessToken) {
-  return await import_axios.default.get("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { "Authorization": `Bearer ${accessToken}` } }).then((res) => {
-    console.log(res.data);
-    if (res.status < 200 || res.status >= 300) {
-      return void 0;
+  return (0, import_node_fetch.default)(
+    "https://www.googleapis.com/oauth2/v3/userinfo",
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`
+      }
     }
-    return res.data;
+  ).then((res) => res.json()).then((data) => {
+    console.log(data);
+    return data;
   }).catch((err) => {
     console.log(err);
     return void 0;
