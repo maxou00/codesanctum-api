@@ -9,6 +9,7 @@
     "postinstall": "keystone postinstall"
   },
   "dependencies": {
+    "@googleapis/people": "^3.0.2",
     "@graphql-tools/schema": "^9.0.13",
     "@keystone-6/auth": "^6.0.0",
     "@keystone-6/core": "^4.0.1",
@@ -21,6 +22,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "google-auth-library": "^8.8.0",
+    "googleapis": "^118.0.0",
     "graphql": "^16.6.0",
     "ioredis": "^5.2.5",
     "jsonwebtoken": "^9.0.0",

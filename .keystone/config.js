@@ -559,6 +559,7 @@ var import_path = require("path");
 
 // src/core/utils.ts
 var import_aws_sdk = require("aws-sdk");
+var import_ioredis = __toESM(require("ioredis"));
 function getS3Client() {
   let client = new import_aws_sdk.S3({
     signatureVersion: "v4",
@@ -636,42 +637,34 @@ var postBySlug = async (root, args, context, info) => {
 };
 var postBySlug_default = postBySlug;
 
-// src/core/auth0.ts
-var import_auth0 = require("auth0");
-var Auth0Config = () => ({
-  domain: process.env.AUTH0_DOMAIN || "",
-  clientId: process.env.AUTH0_CLIENT_ID || "",
-  clientSecret: process.env.AUTH0_CLIENT_SECRET || ""
-});
-var authClient = () => {
-  let config2 = Auth0Config();
-  return new import_auth0.AuthenticationClient({
-    domain: config2.domain,
-    clientId: config2.clientId,
-    clientSecret: config2.clientSecret
-  });
-};
-
-// src/resolvers/auth/signin.ts
+// src/resolvers/auth/signinWithGoogle.ts
 var import_google_auth_library = require("google-auth-library");
 var signinWithGoogle = async (root, args, context, info) => {
   let googleApi = new import_google_auth_library.OAuth2Client({ clientId: process.env.GOOGLE_CLIENT_ID || "", clientSecret: process.env.GOOGLE_CLIENT_SECRET || "" });
   let verification = await googleApi.verifyIdToken({
     idToken: args.accessToken
   });
-  let payload = verification.getPayload();
-  let gid = payload?.sub;
-  let profile = await authClient().getProfile(args.accessToken).catch((err) => {
-    console.log(err);
-    return void 0;
-  });
+  let profile = verification.getPayload();
   if (!profile) {
     return null;
   }
   let client = context.prisma;
   let user = await client.user.findFirst({
     where: {
-      authId: profile.sub
+      AND: [
+        {
+          providers: {
+            path: ["type"],
+            equals: "google"
+          }
+        },
+        {
+          providers: {
+            path: ["sub"],
+            equals: profile.sub || ""
+          }
+        }
+      ]
     }
   });
   if (user) {
@@ -688,8 +681,9 @@ var signinWithGoogle = async (root, args, context, info) => {
       firstname: profile.given_name || firstName,
       lastname: profile.family_name || lastName,
       email: profile.email || "",
-      auth0Avatar: profile.picture || "",
-      authId: profile.sub
+      picture: {
+        url: profile.picture || ""
+      }
     }
   });
   let token = await context.sessionStrategy?.start({ data: user, context });
