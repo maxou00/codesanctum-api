@@ -641,10 +641,11 @@ var postBySlug_default = postBySlug;
 var import_google_auth_library = require("google-auth-library");
 var google = {
   clientId: process.env.GOOGLE_CLIENT_ID || "",
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET || ""
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  redirectUri: "https://api-test.codesanctum.org/auth/google/callback"
 };
 function getGoogleClient() {
-  return new import_google_auth_library.OAuth2Client({ clientId: google.clientId, clientSecret: google.clientSecret });
+  return new import_google_auth_library.OAuth2Client(google.clientId, google.clientSecret, google.redirectUri);
 }
 
 // src/resolvers/auth/signinWithGoogle.ts
@@ -657,8 +658,11 @@ async function exchangeCodeForTokens(code) {
 var signinWithGoogle = async (root, args, context, info) => {
   let googleClient = getGoogleClient();
   let tokens = await exchangeCodeForTokens(args.authCode);
+  if (!tokens.idToken) {
+    return null;
+  }
   let verification = await googleClient.verifyIdToken({
-    idToken: args.authCode
+    idToken: tokens.idToken
   });
   let profile = verification.getPayload();
   if (!profile) {

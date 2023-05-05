@@ -1,32 +1,13 @@
 import { GraphQLResolver, KeystoneContext } from "@keystone-6/core/types";
-import { authClient } from "../../core/auth0";
-import { User as Auth0User } from "auth0";
 import { PrismaClient } from "@prisma/client";
-import { OAuth2Client } from "google-auth-library";
-import { getGoogleClient } from "../../core/google";
+import { getUserWithAccessToken } from "../../core/google";
 
 interface Args {
     authCode: string;
 }
 
-
-async function exchangeCodeForTokens(code: string) {
-    const { tokens } = await getGoogleClient().getToken(code);
-    const accessToken = tokens.access_token;
-    const idToken = tokens.id_token;
-    return { accessToken, idToken };
-}
-
 export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
-    let googleClient = getGoogleClient();
-    let tokens = await exchangeCodeForTokens(args.authCode);
-    if(!tokens.idToken) {
-        return null;
-    }
-    let verification = await googleClient.verifyIdToken({
-        idToken: tokens.idToken
-    });
-    let profile = verification.getPayload();
+    let profile = await getUserWithAccessToken(args.authCode);
     if (!profile) {
         return null;
     }
@@ -51,7 +32,6 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
     });
 
     if (user) {
-
         let token = await context.sessionStrategy?.start({ data: user, context });
         return {
             accessToken: token,
