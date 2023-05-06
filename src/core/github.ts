@@ -1,21 +1,44 @@
-import { OAuth2Client } from "google-auth-library";
 import fetch from "node-fetch"
 
-export interface GoogleUser {
-    sub: string;
+interface GitHubUser {
+    login: string;
+    id: number;
+    node_id: string;
+    avatar_url: string;
+    gravatar_id: string;
+    url: string;
+    html_url: string;
+    followers_url: string;
+    following_url: string;
+    gists_url: string;
+    starred_url: string;
+    subscriptions_url: string;
+    organizations_url: string;
+    repos_url: string;
+    events_url: string;
+    received_events_url: string;
+    type: string;
+    site_admin: boolean;
     name: string;
-    given_name: string;
-    family_name: string;
-    picture: string;
+    company: string;
+    blog: string;
+    location: null;
     email: string;
-    email_verified: boolean;
-    locale: string;
-}
+    hireable: boolean;
+    bio: string;
+    twitter_username: string;
+    public_repos: number;
+    public_gists: number;
+    followers: number;
+    following: number;
+    created_at: Date;
+    updated_at: Date;
+  }
 
 export const github = {
     clientId: process.env.GITHUB_CLIENT_ID || "",
     clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-    redirectUri: "https://test.codesanctum.org/signin/github"
+    redirectUri: "https://test.codesanctum.org/signin?oauth=github"
 };
 
 export async function exchangeGithubCodeWithAccessToken(code: string) {
@@ -54,7 +77,7 @@ export async function getUserWithAccessToken(accessToken: string) {
         .then((res: any) => res.json())
         .then((data: any) => {
             console.log(data);
-            return data as any;
+            return data as GitHubUser;
         })
         .catch((err: any) => {
             console.log(err);
