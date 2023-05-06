@@ -20,8 +20,8 @@ const jwtSession: SessionStrategy<any> = {
     let innerData = { ...args.data };
     let signed = jwt.sign({ userId: innerData.id }, process.env.SESSION_SECRET || "", {
       expiresIn: "30d",
-      audience: ['softwaiz'],
-      issuer: "blog/api"
+      audience: ['codesanctum'],
+      issuer: "api"
     });
 
     let cookie = cookies.serialize("token", signed, {
@@ -56,8 +56,8 @@ const jwtSession: SessionStrategy<any> = {
       if (parsed.token) {
         try {
           let sessionData: any = jwt.verify(parsed.token, process.env.SESSION_SECRET || "", {
-            audience: ["softwaiz"],
-            issuer: "blog/api"
+            audience: ["codesanctum"],
+            issuer: "api"
           })
           let user = await args.context.db.User.findOne({
             where: {
@@ -77,8 +77,8 @@ const jwtSession: SessionStrategy<any> = {
       let token = authorization.replace(/^bearer/i, "").trim();
       try {
         let sessionData: any = jwt.verify(token, process.env.SESSION_SECRET || "", {
-          audience: ["softwaiz"],
-          issuer: "blog/api"
+          audience: ["codesanctum"],
+          issuer: "api"
         })
         let user = await args.context.db.User.findOne({
           where: {

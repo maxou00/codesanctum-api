@@ -32,12 +32,12 @@ export async function getUserWithAccessToken(accessToken: string) {
             }
         }
     )
-        .then((res) => res.json())
-        .then((data) => {
+        .then((res: any) => res.json())
+        .then((data: any) => {
             console.log(data);
             return data as GoogleUser;
         })
-        .catch((err) => {
+        .catch((err: any) => {
             console.log(err);
             return undefined;
         });

@@ -1,15 +1,16 @@
 import { GraphQLResolver, KeystoneContext } from "@keystone-6/core/types";
 import { PrismaClient } from "@prisma/client";
-import { getUserWithAccessToken } from "../../core/google";
+import { exchangeGithubCodeWithAccessToken, getUserWithAccessToken } from "../../core/github";
 
 interface Args {
-    accessToken: string;
+    code: string;
 }
 
-export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
+export const signinWithGithub: GraphQLResolver<KeystoneContext> = async (root, args: Args, context, info) => {
     console.log("Args: ", args);
-    let profile = await getUserWithAccessToken(args.accessToken);
-    console.log("Google Profile: ", profile);
+    let access_token = await exchangeGithubCodeWithAccessToken(args.code);
+    let profile = await getUserWithAccessToken(access_token);
+    console.log("Github Profile: ", profile);
     if (!profile) {
         return null;
     }
@@ -17,8 +18,8 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
     let user = await client.user.findFirst({
         where: {
             providers: {
-                path: ['google', 'sub'],
-                equals: profile.sub
+                path: ['github', 'id'],
+                equals: profile.id
             }
         }
     });
@@ -39,15 +40,16 @@ export const signinWithGoogle: GraphQLResolver<KeystoneContext> = async (root, a
             firstname: profile.given_name || firstName,
             lastname: profile.family_name || lastName,
             email: profile.email || "",
-            picture: {
-                url: profile.picture || "",
-            },
             providers: {
-                google: {
-                    email: profile.email,
-                    sub: profile.sub
-                }
-            }
+                github: {
+                    id: profile.id,
+                    url: profile.url,
+                    avatar_url: profile.avatar_url
+                },
+            },
+            picture: {
+                url: profile.avatar_url || "",
+            },
         }
     });
 

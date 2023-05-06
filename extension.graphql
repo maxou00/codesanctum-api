@@ -41,5 +41,6 @@ input CreateOrUpdatePost {
 
 extend type Mutation {
     signinWithGoogle(accessToken: String): SigninResult
+    signinWithGithub(code: String): SigninResult
     writePost(data: CreateOrUpdatePost): Post
 }

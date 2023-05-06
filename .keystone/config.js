@@ -483,8 +483,8 @@ var jwtSession = {
     let innerData = { ...args.data };
     let signed = import_jsonwebtoken.default.sign({ userId: innerData.id }, process.env.SESSION_SECRET || "", {
       expiresIn: "30d",
-      audience: ["softwaiz"],
-      issuer: "blog/api"
+      audience: ["codesanctum"],
+      issuer: "api"
     });
     let cookie = import_cookie.default.serialize("token", signed, {
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1e3),
@@ -514,8 +514,8 @@ var jwtSession = {
       if (parsed.token) {
         try {
           let sessionData = import_jsonwebtoken.default.verify(parsed.token, process.env.SESSION_SECRET || "", {
-            audience: ["softwaiz"],
-            issuer: "blog/api"
+            audience: ["codesanctum"],
+            issuer: "api"
           });
           let user = await args.context.db.User.findOne({
             where: {
@@ -534,8 +534,8 @@ var jwtSession = {
       let token = authorization.replace(/^bearer/i, "").trim();
       try {
         let sessionData = import_jsonwebtoken.default.verify(token, process.env.SESSION_SECRET || "", {
-          audience: ["softwaiz"],
-          issuer: "blog/api"
+          audience: ["codesanctum"],
+          issuer: "api"
         });
         let user = await args.context.db.User.findOne({
           where: {
@@ -674,20 +674,10 @@ var signinWithGoogle = async (root, args, context, info) => {
   let client = context.prisma;
   let user = await client.user.findFirst({
     where: {
-      AND: [
-        {
-          providers: {
-            path: ["type"],
-            equals: "google"
-          }
-        },
-        {
-          providers: {
-            path: ["sub"],
-            equals: profile.sub || ""
-          }
-        }
-      ]
+      providers: {
+        path: ["google", "sub"],
+        equals: profile.sub
+      }
     }
   });
   if (user) {
@@ -706,6 +696,12 @@ var signinWithGoogle = async (root, args, context, info) => {
       email: profile.email || "",
       picture: {
         url: profile.picture || ""
+      },
+      providers: {
+        google: {
+          email: profile.email,
+          sub: profile.sub
+        }
       }
     }
   });
@@ -829,6 +825,101 @@ var paginatedPosts = async (root, args, context, info) => {
 };
 var paginatedPosts_default = paginatedPosts;
 
+// src/core/github.ts
+var import_node_fetch2 = __toESM(require("node-fetch"));
+var github = {
+  clientId: process.env.GITHUB_CLIENT_ID || "",
+  clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+  redirectUri: "https://test.codesanctum.org/signin/github"
+};
+async function exchangeGithubCodeWithAccessToken(code) {
+  return (0, import_node_fetch2.default)(
+    `https://github.com/login/oauth/access_token?client_id=${github.clientId}&client_secret=${github.clientSecret}&code=${code}`,
+    {
+      method: "POST",
+      headers: {
+        "Accept": "application/json"
+      }
+    }
+  ).then((res) => res.json()).then((data) => {
+    let access_token = data.access_token;
+    return access_token;
+  }).catch((err) => {
+    console.log(err);
+    return void 0;
+  });
+}
+async function getUserWithAccessToken2(accessToken) {
+  return (0, import_node_fetch2.default)(
+    "https://api.github.com/user",
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `token ${accessToken}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Accept": "application/vnd.github+json"
+      }
+    }
+  ).then((res) => res.json()).then((data) => {
+    console.log(data);
+    return data;
+  }).catch((err) => {
+    console.log(err);
+    return void 0;
+  });
+}
+
+// src/resolvers/auth/signinWithGithub.ts
+var signinWithGithub = async (root, args, context, info) => {
+  console.log("Args: ", args);
+  let access_token = await exchangeGithubCodeWithAccessToken(args.code);
+  let profile = await getUserWithAccessToken2(access_token);
+  console.log("Github Profile: ", profile);
+  if (!profile) {
+    return null;
+  }
+  let client = context.prisma;
+  let user = await client.user.findFirst({
+    where: {
+      providers: {
+        path: ["github", "id"],
+        equals: profile.id
+      }
+    }
+  });
+  if (user) {
+    let token2 = await context.sessionStrategy?.start({ data: user, context });
+    return {
+      accessToken: token2,
+      user
+    };
+  }
+  let name = profile.name;
+  let [firstName, lastName] = (name || "").split(" ");
+  user = await client.user.create({
+    data: {
+      firstname: profile.given_name || firstName,
+      lastname: profile.family_name || lastName,
+      email: profile.email || "",
+      providers: {
+        github: {
+          id: profile.id,
+          url: profile.url,
+          avatar_url: profile.avatar_url
+        }
+      },
+      picture: {
+        url: profile.avatar_url || ""
+      }
+    }
+  });
+  let token = await context.sessionStrategy?.start({ data: user, context });
+  return {
+    accessToken: token,
+    user
+  };
+};
+
 // keystone.ts
 (0, import_dotenv.config)();
 var schemaExtension = (0, import_graphql.parse)(
@@ -859,6 +950,7 @@ var keystone_default = (0, import_core8.config)({
       },
       Mutation: {
         signinWithGoogle,
+        signinWithGithub,
         writePost: writePost_default
       }
     }

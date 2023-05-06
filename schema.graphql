@@ -669,6 +669,7 @@ type Mutation {
   deleteReactions(where: [ReactionWhereUniqueInput!]!): [Reaction]
   endSession: Boolean!
   signinWithGoogle(accessToken: String): SigninResult
+  signinWithGithub(code: String): SigninResult
   writePost(data: CreateOrUpdatePost): Post
 }
 
