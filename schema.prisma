@@ -28,19 +28,22 @@ model NewsletterSubscription {
 }
 
 model User {
-  id        String     @id @default(uuid()) @postgresql.Uuid
-  firstname String     @default("")
-  lastname  String     @default("")
-  picture   Json?      @default("{}")
-  providers Json?      @default("{}")
-  email     String     @default("")
-  gender    String?
-  role      String     @default("reader")
-  posts     Post[]     @relation("Post_author")
-  comments  Comment[]  @relation("Comment_author")
-  reactions Reaction[] @relation("Reaction_author")
-  createdAt DateTime?  @default(now())
-  updatedAt DateTime?
+  id          String     @id @default(uuid()) @postgresql.Uuid
+  firstname   String     @default("")
+  lastname    String     @default("")
+  picture     Json?      @default("{}")
+  providers   Json?      @default("{}")
+  email       String     @default("")
+  phoneNumber String     @default("")
+  gender      String?
+  role        String     @default("reader")
+  forms       Form[]     @relation("Form_user")
+  answers     Answer[]   @relation("Answer_user")
+  posts       Post[]     @relation("Post_author")
+  comments    Comment[]  @relation("Comment_author")
+  reactions   Reaction[] @relation("Reaction_author")
+  createdAt   DateTime?  @default(now())
+  updatedAt   DateTime?
 }
 
 model Post {
@@ -103,4 +106,30 @@ model Reaction {
   @@index([postId])
   @@index([commentId])
   @@index([authorId])
+}
+
+model Form {
+  id        String    @id @default(uuid()) @postgresql.Uuid
+  data      Json?     @default("{}")
+  user      User?     @relation("Form_user", fields: [userId], references: [id])
+  userId    String?   @map("user") @postgresql.Uuid
+  answers   Answer[]  @relation("Answer_form")
+  createdAt DateTime? @default(now())
+  updatedAt DateTime?
+
+  @@index([userId])
+}
+
+model Answer {
+  id        String    @id @default(uuid()) @postgresql.Uuid
+  form      Form?     @relation("Answer_form", fields: [formId], references: [id])
+  formId    String?   @map("form") @postgresql.Uuid
+  data      Json?     @default("{}")
+  user      User?     @relation("Answer_user", fields: [userId], references: [id])
+  userId    String?   @map("user") @postgresql.Uuid
+  createdAt DateTime? @default(now())
+  updatedAt DateTime?
+
+  @@index([formId])
+  @@index([userId])
 }

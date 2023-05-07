@@ -29,7 +29,7 @@ __export(keystone_exports, {
   default: () => keystone_default
 });
 module.exports = __toCommonJS(keystone_exports);
-var import_core8 = require("@keystone-6/core");
+var import_core10 = require("@keystone-6/core");
 var import_graphql = require("graphql");
 
 // src/list/User.ts
@@ -43,11 +43,13 @@ var User = (0, import_core.list)({
   },
   fields: {
     firstname: (0, import_fields.text)({
+      label: "Prenom",
       validation: {
         isRequired: true
       }
     }),
     lastname: (0, import_fields.text)({
+      label: "Nom",
       validation: {
         isRequired: true
       }
@@ -83,6 +85,13 @@ var User = (0, import_core.list)({
       })
     }),
     email: (0, import_fields.text)({
+      label: "Email",
+      validation: {
+        isRequired: true
+      }
+    }),
+    phoneNumber: (0, import_fields.text)({
+      label: "Numero de t\xE9l\xE9phone",
       validation: {
         isRequired: true
       }
@@ -107,6 +116,16 @@ var User = (0, import_core.list)({
       validation: {
         isRequired: true
       }
+    }),
+    forms: (0, import_fields.relationship)({
+      label: "Formulaires",
+      ref: "Form.user",
+      many: true
+    }),
+    answers: (0, import_fields.relationship)({
+      label: "Reponses",
+      ref: "Answer.user",
+      many: true
     }),
     posts: (0, import_fields.relationship)({
       label: "Articles",
@@ -454,6 +473,146 @@ var NewsletterSubscription = (0, import_core7.list)({
 });
 var NewsLetterSubscription_default = NewsletterSubscription;
 
+// src/list/Form.ts
+var import_core8 = require("@keystone-6/core");
+var import_fields8 = require("@keystone-6/core/fields");
+var Form = (0, import_core8.list)({
+  access: (ctx) => {
+    if (["create", "update", "delete"].includes(ctx.operation)) {
+      return Boolean(ctx.session?.id);
+    }
+    return true;
+  },
+  ui: {
+    label: "Formulaire"
+  },
+  fields: {
+    data: (0, import_fields8.json)({
+      label: "Donn\xE9es du formulaire",
+      defaultValue: {}
+    }),
+    user: (0, import_fields8.relationship)({
+      label: "Auteur",
+      ref: "User.forms",
+      many: false
+    }),
+    answers: (0, import_fields8.relationship)({
+      label: "R\xE9ponses",
+      ref: "Answer.form",
+      many: true
+    }),
+    createdAt: (0, import_fields8.timestamp)({
+      defaultValue: {
+        kind: "now"
+      }
+    }),
+    updatedAt: (0, import_fields8.timestamp)({})
+  },
+  db: {
+    idField: {
+      kind: "uuid"
+    }
+  },
+  hooks: {
+    resolveInput(args) {
+      if (args.operation === "create") {
+        let output = {
+          ...args.inputData,
+          user: {
+            connect: {
+              id: args.context.session.id
+            }
+          }
+        };
+        return output;
+      }
+      if (args.operation === "update") {
+        let output = {
+          ...args.inputData,
+          user: {
+            connect: {
+              id: args.context.session.id
+            }
+          }
+        };
+        return output;
+      }
+      return args.resolvedData;
+    }
+  }
+});
+var Form_default = Form;
+
+// src/list/Answer.ts
+var import_core9 = require("@keystone-6/core");
+var import_fields9 = require("@keystone-6/core/fields");
+var Answer = (0, import_core9.list)({
+  access: (ctx) => {
+    if (["create", "update", "delete"].includes(ctx.operation)) {
+      return Boolean(ctx.session?.id);
+    }
+    return true;
+  },
+  ui: {
+    label: "R\xE9ponse"
+  },
+  fields: {
+    form: (0, import_fields9.relationship)({
+      label: "Formulaire",
+      ref: "Form.answers",
+      many: false
+    }),
+    data: (0, import_fields9.json)({
+      label: "R\xE9ponse",
+      defaultValue: {}
+    }),
+    user: (0, import_fields9.relationship)({
+      label: "Auteur",
+      ref: "User.answers",
+      many: false
+    }),
+    createdAt: (0, import_fields9.timestamp)({
+      defaultValue: {
+        kind: "now"
+      }
+    }),
+    updatedAt: (0, import_fields9.timestamp)({})
+  },
+  db: {
+    idField: {
+      kind: "uuid"
+    }
+  },
+  hooks: {
+    resolveInput(args) {
+      if (args.operation === "create") {
+        let output = {
+          ...args.inputData,
+          user: {
+            connect: {
+              id: args.context.session.id
+            }
+          }
+        };
+        return output;
+      }
+      if (args.operation === "update") {
+        let output = {
+          ...args.inputData,
+          user: {
+            connect: {
+              id: args.context.session.id
+            }
+          }
+        };
+        return output;
+      }
+      return args.resolvedData;
+    }
+  }
+});
+var Answer_default = Answer;
+
 // schema.ts
 var lists = {
   Message: Message_default,
@@ -462,7 +621,9 @@ var lists = {
   Post: Post_default,
   Tag: Tag_default,
   Comment: Comment_default,
-  Reaction: Reaction_default
+  Reaction: Reaction_default,
+  Form: Form_default,
+  Answer: Answer_default
 };
 
 // auth.ts
@@ -613,7 +774,7 @@ var import_dotenv = require("dotenv");
 var import_fs = require("fs");
 var import_schema2 = require("@graphql-tools/schema");
 
-// src/resolvers/auth/authenticatedItem.ts
+// src/resolvers/auth/getAuthenticatedUser.ts
 var getAuthenticatedUser = async (root, args, context, info) => {
   if (!context.session?.id) {
     return null;
@@ -665,51 +826,56 @@ async function getUserWithAccessToken(accessToken) {
 
 // src/resolvers/auth/signinWithGoogle.ts
 var signinWithGoogle = async (root, args, context, info) => {
-  console.log("Args: ", args);
-  let profile = await getUserWithAccessToken(args.accessToken);
-  console.log("Google Profile: ", profile);
-  if (!profile) {
-    return null;
-  }
-  let client = context.prisma;
-  let user = await client.user.findFirst({
-    where: {
-      providers: {
-        path: ["google", "sub"],
-        equals: profile.sub
-      }
+  try {
+    console.log("Args: ", args);
+    let profile = await getUserWithAccessToken(args.accessToken);
+    console.log("Google Profile: ", profile);
+    if (!profile) {
+      return null;
     }
-  });
-  if (user) {
-    let token2 = await context.sessionStrategy?.start({ data: user, context });
-    return {
-      accessToken: token2,
-      user
-    };
-  }
-  let name = profile.name;
-  let [firstName, lastName] = (name || "").split(" ");
-  user = await client.user.create({
-    data: {
-      firstname: profile.given_name || firstName,
-      lastname: profile.family_name || lastName,
-      email: profile.email || "",
-      picture: {
-        url: profile.picture || ""
-      },
-      providers: {
-        google: {
-          email: profile.email,
-          sub: profile.sub
+    let client = context.prisma;
+    let user = await client.user.findFirst({
+      where: {
+        providers: {
+          path: ["google", "sub"],
+          equals: profile.sub
         }
       }
+    });
+    if (user) {
+      let token2 = await context.sessionStrategy?.start({ data: user, context });
+      return {
+        accessToken: token2,
+        user
+      };
     }
-  });
-  let token = await context.sessionStrategy?.start({ data: user, context });
-  return {
-    accessToken: token,
-    user
-  };
+    let name = profile.name;
+    let [firstName, lastName] = (name || "").split(" ");
+    user = await client.user.create({
+      data: {
+        firstname: profile.given_name || firstName,
+        lastname: profile.family_name || lastName,
+        email: profile.email || "",
+        picture: {
+          url: profile.picture || ""
+        },
+        providers: {
+          google: {
+            email: profile.email,
+            sub: profile.sub
+          }
+        }
+      }
+    });
+    let token = await context.sessionStrategy?.start({ data: user, context });
+    return {
+      accessToken: token,
+      user
+    };
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 // src/resolvers/posts/writePost.ts
@@ -830,7 +996,7 @@ var import_node_fetch2 = __toESM(require("node-fetch"));
 var github = {
   clientId: process.env.GITHUB_CLIENT_ID || "",
   clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-  redirectUri: "https://test.codesanctum.org/signin/github"
+  redirectUri: "https://test.codesanctum.org/signin?oauth=github"
 };
 async function exchangeGithubCodeWithAccessToken(code) {
   return (0, import_node_fetch2.default)(
@@ -871,53 +1037,59 @@ async function getUserWithAccessToken2(accessToken) {
 
 // src/resolvers/auth/signinWithGithub.ts
 var signinWithGithub = async (root, args, context, info) => {
-  console.log("Args: ", args);
-  let access_token = await exchangeGithubCodeWithAccessToken(args.code);
-  let profile = await getUserWithAccessToken2(access_token);
-  console.log("Github Profile: ", profile);
-  if (!profile) {
-    return null;
-  }
-  let client = context.prisma;
-  let user = await client.user.findFirst({
-    where: {
-      providers: {
-        path: ["github", "id"],
-        equals: profile.id
-      }
+  try {
+    console.log("Args: ", args);
+    let access_token = await exchangeGithubCodeWithAccessToken(args.code);
+    let profile = await getUserWithAccessToken2(access_token);
+    console.log("Github Profile: ", profile);
+    if (!profile) {
+      return null;
     }
-  });
-  if (user) {
-    let token2 = await context.sessionStrategy?.start({ data: user, context });
+    let client = context.prisma;
+    let user = await client.user.findFirst({
+      where: {
+        providers: {
+          path: ["github", "id"],
+          equals: profile.id
+        }
+      }
+    });
+    if (user) {
+      let token2 = await context.sessionStrategy?.start({ data: user, context });
+      return {
+        accessToken: token2,
+        user
+      };
+    }
+    let name = profile.name;
+    let [firstName, lastName] = (name || "").split(" ");
+    user = await client.user.create({
+      data: {
+        firstname: firstName,
+        lastname: lastName,
+        email: profile.email || "",
+        providers: {
+          github: {
+            id: profile.id,
+            login: profile.login,
+            url: profile.url,
+            avatar_url: profile.avatar_url
+          }
+        },
+        picture: {
+          url: profile.avatar_url || ""
+        }
+      }
+    });
+    let token = await context.sessionStrategy?.start({ data: user, context });
     return {
-      accessToken: token2,
+      accessToken: token,
       user
     };
+  } catch (error) {
+    console.log(error);
+    return null;
   }
-  let name = profile.name;
-  let [firstName, lastName] = (name || "").split(" ");
-  user = await client.user.create({
-    data: {
-      firstname: profile.given_name || firstName,
-      lastname: profile.family_name || lastName,
-      email: profile.email || "",
-      providers: {
-        github: {
-          id: profile.id,
-          url: profile.url,
-          avatar_url: profile.avatar_url
-        }
-      },
-      picture: {
-        url: profile.avatar_url || ""
-      }
-    }
-  });
-  let token = await context.sessionStrategy?.start({ data: user, context });
-  return {
-    accessToken: token,
-    user
-  };
 };
 
 // keystone.ts
@@ -925,7 +1097,7 @@ var signinWithGithub = async (root, args, context, info) => {
 var schemaExtension = (0, import_graphql.parse)(
   (0, import_fs.readFileSync)("./extension.graphql", { encoding: "utf-8" })
 );
-var keystone_default = (0, import_core8.config)({
+var keystone_default = (0, import_core10.config)({
   db: {
     provider: "postgresql",
     url: process.env.DATABASE_URL || ""

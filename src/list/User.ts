@@ -9,11 +9,13 @@ const User = list({
     },
     fields: {
         firstname: text({
+            label: "Prenom",
             validation: {
                 isRequired: true
             }
         }),
         lastname: text({
+            label: "Nom",
             validation: {
                 isRequired: true
             }
@@ -49,11 +51,17 @@ const User = list({
             })
         }),
         email: text({
+            label: "Email",
             validation: {
                 isRequired: true
             },
         }),
-
+        phoneNumber: text({
+            label: "Numero de téléphone",
+            validation: {
+                isRequired: true
+            },
+        }),
         gender: select({
             label: "Genre",
             options: [
@@ -75,31 +83,36 @@ const User = list({
                 isRequired: true
             }
         }),
-
+        forms: relationship({
+            label: "Formulaires",
+            ref: "Form.user",
+            many: true
+        }),
+        answers: relationship({
+            label: "Reponses",
+            ref: "Answer.user",
+            many: true
+        }),
         posts: relationship({
             label: "Articles",
             ref: "Post.author",
             many: true
         }),
-
         comments: relationship({
             label: "Commentaires",
             ref: "Comment.author",
             many: true
         }),
-
         reactions: relationship({
             label: "Reactions",
             ref: "Reaction.author",
             many: true
         }),
-
         createdAt: timestamp({
             defaultValue: {
                 kind: 'now'
             },
         }),
-
         updatedAt: timestamp({
         }),
     },

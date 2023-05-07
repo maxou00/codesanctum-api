@@ -6,7 +6,7 @@ import AssetRouter from './src/routers/asset';
 import { config as dotenvConfig } from "dotenv";
 import { readFileSync } from 'fs';
 import { mergeSchemas } from '@graphql-tools/schema';
-import { getAuthenticatedUser } from './src/resolvers/auth/authenticatedItem';
+import { getAuthenticatedUser } from './src/resolvers/auth/getAuthenticatedUser';
 import postBySlug from './src/resolvers/posts/postBySlug';
 import { signinWithGoogle } from './src/resolvers/auth/signinWithGoogle';
 import writePost from './src/resolvers/posts/writePost';

@@ -6,15 +6,17 @@ import Comment from './src/list/Comment';
 import Reaction from './src/list/Reaction';
 import Message from './src/list/Message';
 import NewsletterSubscription from './src/list/NewsLetterSubscription';
+import Form from './src/list/Form';
+import Answer from './src/list/Answer';
 
 export const lists: Lists = {
-
   Message,
   NewsletterSubscription,
-
   User,
   Post,
   Tag,
   Comment,
-  Reaction
+  Reaction,
+  Form,
+  Answer
 };

@@ -167,8 +167,13 @@ type User {
   providers: JSON
   avatar: String
   email: String
+  phoneNumber: String
   gender: String
   role: String
+  forms(where: FormWhereInput! = {}, orderBy: [FormOrderByInput!]! = [], take: Int, skip: Int! = 0): [Form!]
+  formsCount(where: FormWhereInput! = {}): Int
+  answers(where: AnswerWhereInput! = {}, orderBy: [AnswerOrderByInput!]! = [], take: Int, skip: Int! = 0): [Answer!]
+  answersCount(where: AnswerWhereInput! = {}): Int
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0): [Post!]
   postsCount(where: PostWhereInput! = {}): Int
   comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0): [Comment!]
@@ -191,8 +196,11 @@ input UserWhereInput {
   firstname: StringFilter
   lastname: StringFilter
   email: StringFilter
+  phoneNumber: StringFilter
   gender: StringNullableFilter
   role: StringFilter
+  forms: FormManyRelationFilter
+  answers: AnswerManyRelationFilter
   posts: PostManyRelationFilter
   comments: CommentManyRelationFilter
   reactions: ReactionManyRelationFilter
@@ -229,6 +237,18 @@ input NestedStringNullableFilter {
   not: NestedStringNullableFilter
 }
 
+input FormManyRelationFilter {
+  every: FormWhereInput
+  some: FormWhereInput
+  none: FormWhereInput
+}
+
+input AnswerManyRelationFilter {
+  every: AnswerWhereInput
+  some: AnswerWhereInput
+  none: AnswerWhereInput
+}
+
 input PostManyRelationFilter {
   every: PostWhereInput
   some: PostWhereInput
@@ -252,6 +272,7 @@ input UserOrderByInput {
   firstname: OrderDirection
   lastname: OrderDirection
   email: OrderDirection
+  phoneNumber: OrderDirection
   gender: OrderDirection
   role: OrderDirection
   createdAt: OrderDirection
@@ -264,13 +285,30 @@ input UserUpdateInput {
   picture: JSON
   providers: JSON
   email: String
+  phoneNumber: String
   gender: String
   role: String
+  forms: FormRelateToManyForUpdateInput
+  answers: AnswerRelateToManyForUpdateInput
   posts: PostRelateToManyForUpdateInput
   comments: CommentRelateToManyForUpdateInput
   reactions: ReactionRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input FormRelateToManyForUpdateInput {
+  disconnect: [FormWhereUniqueInput!]
+  set: [FormWhereUniqueInput!]
+  create: [FormCreateInput!]
+  connect: [FormWhereUniqueInput!]
+}
+
+input AnswerRelateToManyForUpdateInput {
+  disconnect: [AnswerWhereUniqueInput!]
+  set: [AnswerWhereUniqueInput!]
+  create: [AnswerCreateInput!]
+  connect: [AnswerWhereUniqueInput!]
 }
 
 input PostRelateToManyForUpdateInput {
@@ -305,13 +343,26 @@ input UserCreateInput {
   picture: JSON
   providers: JSON
   email: String
+  phoneNumber: String
   gender: String
   role: String
+  forms: FormRelateToManyForCreateInput
+  answers: AnswerRelateToManyForCreateInput
   posts: PostRelateToManyForCreateInput
   comments: CommentRelateToManyForCreateInput
   reactions: ReactionRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input FormRelateToManyForCreateInput {
+  create: [FormCreateInput!]
+  connect: [FormWhereUniqueInput!]
+}
+
+input AnswerRelateToManyForCreateInput {
+  create: [AnswerCreateInput!]
+  connect: [AnswerWhereUniqueInput!]
 }
 
 input PostRelateToManyForCreateInput {
@@ -619,6 +670,120 @@ input ReactionCreateInput {
   createdAt: DateTime
 }
 
+type Form {
+  id: ID!
+  data: JSON
+  user: User
+  answers(where: AnswerWhereInput! = {}, orderBy: [AnswerOrderByInput!]! = [], take: Int, skip: Int! = 0): [Answer!]
+  answersCount(where: AnswerWhereInput! = {}): Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input FormWhereUniqueInput {
+  id: ID
+}
+
+input FormWhereInput {
+  AND: [FormWhereInput!]
+  OR: [FormWhereInput!]
+  NOT: [FormWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  answers: AnswerManyRelationFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input FormOrderByInput {
+  id: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input FormUpdateInput {
+  data: JSON
+  user: UserRelateToOneForUpdateInput
+  answers: AnswerRelateToManyForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input FormUpdateArgs {
+  where: FormWhereUniqueInput!
+  data: FormUpdateInput!
+}
+
+input FormCreateInput {
+  data: JSON
+  user: UserRelateToOneForCreateInput
+  answers: AnswerRelateToManyForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Answer {
+  id: ID!
+  form: Form
+  data: JSON
+  user: User
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input AnswerWhereUniqueInput {
+  id: ID
+}
+
+input AnswerWhereInput {
+  AND: [AnswerWhereInput!]
+  OR: [AnswerWhereInput!]
+  NOT: [AnswerWhereInput!]
+  id: IDFilter
+  form: FormWhereInput
+  user: UserWhereInput
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input AnswerOrderByInput {
+  id: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input AnswerUpdateInput {
+  form: FormRelateToOneForUpdateInput
+  data: JSON
+  user: UserRelateToOneForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input FormRelateToOneForUpdateInput {
+  create: FormCreateInput
+  connect: FormWhereUniqueInput
+  disconnect: Boolean
+}
+
+input AnswerUpdateArgs {
+  where: AnswerWhereUniqueInput!
+  data: AnswerUpdateInput!
+}
+
+input AnswerCreateInput {
+  form: FormRelateToOneForCreateInput
+  data: JSON
+  user: UserRelateToOneForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input FormRelateToOneForCreateInput {
+  create: FormCreateInput
+  connect: FormWhereUniqueInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -667,6 +832,18 @@ type Mutation {
   updateReactions(data: [ReactionUpdateArgs!]!): [Reaction]
   deleteReaction(where: ReactionWhereUniqueInput!): Reaction
   deleteReactions(where: [ReactionWhereUniqueInput!]!): [Reaction]
+  createForm(data: FormCreateInput!): Form
+  createForms(data: [FormCreateInput!]!): [Form]
+  updateForm(where: FormWhereUniqueInput!, data: FormUpdateInput!): Form
+  updateForms(data: [FormUpdateArgs!]!): [Form]
+  deleteForm(where: FormWhereUniqueInput!): Form
+  deleteForms(where: [FormWhereUniqueInput!]!): [Form]
+  createAnswer(data: AnswerCreateInput!): Answer
+  createAnswers(data: [AnswerCreateInput!]!): [Answer]
+  updateAnswer(where: AnswerWhereUniqueInput!, data: AnswerUpdateInput!): Answer
+  updateAnswers(data: [AnswerUpdateArgs!]!): [Answer]
+  deleteAnswer(where: AnswerWhereUniqueInput!): Answer
+  deleteAnswers(where: [AnswerWhereUniqueInput!]!): [Answer]
   endSession: Boolean!
   signinWithGoogle(accessToken: String): SigninResult
   signinWithGithub(code: String): SigninResult
@@ -695,6 +872,12 @@ type Query {
   reactions(where: ReactionWhereInput! = {}, orderBy: [ReactionOrderByInput!]! = [], take: Int, skip: Int! = 0): [Reaction!]
   reaction(where: ReactionWhereUniqueInput!): Reaction
   reactionsCount(where: ReactionWhereInput! = {}): Int
+  forms(where: FormWhereInput! = {}, orderBy: [FormOrderByInput!]! = [], take: Int, skip: Int! = 0): [Form!]
+  form(where: FormWhereUniqueInput!): Form
+  formsCount(where: FormWhereInput! = {}): Int
+  answers(where: AnswerWhereInput! = {}, orderBy: [AnswerOrderByInput!]! = [], take: Int, skip: Int! = 0): [Answer!]
+  answer(where: AnswerWhereUniqueInput!): Answer
+  answersCount(where: AnswerWhereInput! = {}): Int
   keystone: KeystoneMeta!
   me: User
   postBySlug(slug: String): Post
