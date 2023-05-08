@@ -1100,7 +1100,7 @@ var getFormAnswer = async (root, args, context, info) => {
   let client = context.prisma;
   let answer = await client.answer.findFirst({
     where: {
-      AND: [{ formId: args.formId }, { userId: context.session.id }]
+      AND: [{ formId: args.formId || root.id }, { userId: context.session.id }]
     }
   });
   return answer;
@@ -1129,6 +1129,9 @@ var keystone_default = (0, import_core10.config)({
     schemas: [schema],
     typeDefs: schemaExtension,
     resolvers: {
+      Form: {
+        answer: getFormAnswer
+      },
       Query: {
         me: getAuthenticatedUser,
         postBySlug: postBySlug_default,

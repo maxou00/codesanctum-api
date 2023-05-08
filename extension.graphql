@@ -24,6 +24,10 @@ type PaginatedPosts {
     items: [Post!]
 }
 
+extend type Form {
+    answer: Answer
+}
+
 extend type Query {
     me: User
     postBySlug(slug: String): Post

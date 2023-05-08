@@ -13,7 +13,7 @@ export const getFormAnswer: GraphQLResolver<KeystoneContext> = async (root, args
     let client = context.prisma as PrismaClient;
     let answer = await client.answer.findFirst({
         where: {
-            AND: [{ formId: args.formId }, { userId: context.session.id }],
+            AND: [{ formId: args.formId || root.id }, { userId: context.session.id }],
         }
     });
 

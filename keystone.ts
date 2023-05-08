@@ -39,6 +39,9 @@ export default config({
     schemas: [schema],
     typeDefs: schemaExtension,
     resolvers: {
+      Form: {
+        answer: getFormAnswer
+      },
       Query: {
         me: getAuthenticatedUser,
         postBySlug,
