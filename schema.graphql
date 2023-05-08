@@ -180,6 +180,9 @@ type User {
   commentsCount(where: CommentWhereInput! = {}): Int
   reactions(where: ReactionWhereInput! = {}, orderBy: [ReactionOrderByInput!]! = [], take: Int, skip: Int! = 0): [Reaction!]
   reactionsCount(where: ReactionWhereInput! = {}): Int
+  verified: Boolean
+  accepted: Boolean
+  approved: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -204,6 +207,9 @@ input UserWhereInput {
   posts: PostManyRelationFilter
   comments: CommentManyRelationFilter
   reactions: ReactionManyRelationFilter
+  verified: BooleanFilter
+  accepted: BooleanFilter
+  approved: StringFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -267,6 +273,11 @@ input ReactionManyRelationFilter {
   none: ReactionWhereInput
 }
 
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
 input UserOrderByInput {
   id: OrderDirection
   firstname: OrderDirection
@@ -275,6 +286,9 @@ input UserOrderByInput {
   phoneNumber: OrderDirection
   gender: OrderDirection
   role: OrderDirection
+  verified: OrderDirection
+  accepted: OrderDirection
+  approved: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -293,6 +307,9 @@ input UserUpdateInput {
   posts: PostRelateToManyForUpdateInput
   comments: CommentRelateToManyForUpdateInput
   reactions: ReactionRelateToManyForUpdateInput
+  verified: Boolean
+  accepted: Boolean
+  approved: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -351,6 +368,9 @@ input UserCreateInput {
   posts: PostRelateToManyForCreateInput
   comments: CommentRelateToManyForCreateInput
   reactions: ReactionRelateToManyForCreateInput
+  verified: Boolean
+  accepted: Boolean
+  approved: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -413,11 +433,6 @@ input PostWhereInput {
   reactions: ReactionManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
-}
-
-input BooleanFilter {
-  equals: Boolean
-  not: BooleanFilter
 }
 
 input TagManyRelationFilter {

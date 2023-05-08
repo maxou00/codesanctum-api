@@ -142,6 +142,20 @@ var User = (0, import_core.list)({
       ref: "Reaction.author",
       many: true
     }),
+    verified: (0, import_fields.checkbox)({
+      label: "Profil verifi\xE9",
+      defaultValue: false
+    }),
+    accepted: (0, import_fields.checkbox)({
+      label: "Profil accept\xE9 pour la cohorte",
+      defaultValue: false
+    }),
+    approved: (0, import_fields.text)({
+      label: "Nom",
+      validation: {
+        isRequired: true
+      }
+    }),
     createdAt: (0, import_fields.timestamp)({
       defaultValue: {
         kind: "now"

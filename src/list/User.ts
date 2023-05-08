@@ -1,6 +1,6 @@
 import { list, graphql } from "@keystone-6/core";
 import { allowAll } from "@keystone-6/core/access";
-import { text, timestamp, select, relationship, virtual, json } from "@keystone-6/core/fields";
+import { text, timestamp, select, relationship, virtual, json, checkbox } from "@keystone-6/core/fields";
 
 const User = list({
     access: allowAll,
@@ -107,6 +107,20 @@ const User = list({
             label: "Reactions",
             ref: "Reaction.author",
             many: true
+        }),
+        verified: checkbox({
+            label: "Compte vérifié",
+            defaultValue: false,
+        }),
+        accepted: checkbox({
+            label: "Profil accepté pour la cohorte",
+            defaultValue: false,
+        }),
+        approved: text({
+            label: "Nom",
+            validation: {
+                isRequired: true
+            }
         }),
         createdAt: timestamp({
             defaultValue: {
