@@ -1,6 +1,6 @@
 import { list, graphql } from "@keystone-6/core";
 import { allowAll } from "@keystone-6/core/access";
-import { text, timestamp, select, relationship, virtual, json, checkbox } from "@keystone-6/core/fields";
+import { text, timestamp, select, relationship, virtual, json, checkbox, integer } from "@keystone-6/core/fields";
 
 const User = list({
     access: allowAll,
@@ -38,7 +38,7 @@ const User = list({
                 resolve: async (root: any, args, context, info) => {
                     if (root.picture) {
                         let dt = root.picture
-                        if(dt.url) {
+                        if (dt.url) {
                             return dt.url;
                         }
                     }
@@ -108,16 +108,16 @@ const User = list({
             ref: "Reaction.author",
             many: true
         }),
+        level: integer({
+            label: "Niveau associé au profil",
+            defaultValue: 0
+        }),
         verified: checkbox({
             label: "Compte vérifié",
             defaultValue: false,
         }),
-        accepted: checkbox({
-            label: "Profil accepté pour la cohorte",
-            defaultValue: false,
-        }),
         approved: text({
-            label: "Nom",
+            label: "Profil approuvé pour la cohorte",
             validation: {
                 isRequired: true
             }

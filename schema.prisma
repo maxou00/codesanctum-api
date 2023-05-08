@@ -42,8 +42,8 @@ model User {
   posts       Post[]     @relation("Post_author")
   comments    Comment[]  @relation("Comment_author")
   reactions   Reaction[] @relation("Reaction_author")
+  level       Int?       @default(0)
   verified    Boolean    @default(false)
-  accepted    Boolean    @default(false)
   approved    String     @default("")
   createdAt   DateTime?  @default(now())
   updatedAt   DateTime?

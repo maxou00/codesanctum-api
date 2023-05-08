@@ -142,16 +142,16 @@ var User = (0, import_core.list)({
       ref: "Reaction.author",
       many: true
     }),
-    verified: (0, import_fields.checkbox)({
-      label: "Profil verifi\xE9",
-      defaultValue: false
+    level: (0, import_fields.integer)({
+      label: "Niveau associ\xE9 au profil",
+      defaultValue: 0
     }),
-    accepted: (0, import_fields.checkbox)({
-      label: "Profil accept\xE9 pour la cohorte",
+    verified: (0, import_fields.checkbox)({
+      label: "Compte v\xE9rifi\xE9",
       defaultValue: false
     }),
     approved: (0, import_fields.text)({
-      label: "Nom",
+      label: "Profil approuv\xE9 pour la cohorte",
       validation: {
         isRequired: true
       }
