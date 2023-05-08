@@ -28,6 +28,7 @@ extend type Query {
     me: User
     postBySlug(slug: String): Post
     paginatedPosts(pageSize: Int, currentPage: Int): PaginatedPosts
+    formAnswer(formId: String): Answer
 }
 
 input CreateOrUpdatePost {

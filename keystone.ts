@@ -13,6 +13,7 @@ import writePost from './src/resolvers/posts/writePost';
 import paginatedPosts from './src/resolvers/posts/paginatedPosts';
 import { getRedisClient } from './src/core/utils';
 import { signinWithGithub } from './src/resolvers/auth/signinWithGithub';
+import { getFormAnswer } from './src/resolvers/forms/formAnswer';
 
 dotenvConfig();
 
@@ -41,7 +42,8 @@ export default config({
       Query: {
         me: getAuthenticatedUser,
         postBySlug,
-        paginatedPosts
+        paginatedPosts,
+        formAnswer: getFormAnswer
       },
       Mutation: {
         signinWithGoogle,

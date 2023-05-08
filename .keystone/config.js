@@ -1092,6 +1092,20 @@ var signinWithGithub = async (root, args, context, info) => {
   }
 };
 
+// src/resolvers/forms/formAnswer.ts
+var getFormAnswer = async (root, args, context, info) => {
+  if (!context.session.id) {
+    return null;
+  }
+  let client = context.prisma;
+  let answer = await client.answer.findFirst({
+    where: {
+      AND: [{ formId: args.formId }, { userId: context.session.id }]
+    }
+  });
+  return answer;
+};
+
 // keystone.ts
 (0, import_dotenv.config)();
 var schemaExtension = (0, import_graphql.parse)(
@@ -1118,7 +1132,8 @@ var keystone_default = (0, import_core10.config)({
       Query: {
         me: getAuthenticatedUser,
         postBySlug: postBySlug_default,
-        paginatedPosts: paginatedPosts_default
+        paginatedPosts: paginatedPosts_default,
+        formAnswer: getFormAnswer
       },
       Mutation: {
         signinWithGoogle,
