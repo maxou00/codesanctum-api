@@ -110,6 +110,7 @@ var User = (0, import_core.list)({
       },
       defaultValue: "reader",
       options: [
+        { label: "System Admin", value: "admin" },
         { label: "Auteur", value: "publisher" },
         { label: "Lecteur", value: "reader" }
       ],
